@@ -107,26 +107,25 @@ def format_title(event):
 def make_pill_image(text):
     """Render text into a rounded-pill image for the menu bar."""
     font = NSFont.systemFontOfSize_weight_(11, 0.5)
+    text_color = NSColor.colorWithCalibratedRed_green_blue_alpha_(0.0, 0.0, 0.0, 0.85)
     attrs = {
         NSFontAttributeName: font,
-        NSForegroundColorAttributeName: NSColor.whiteColor(),
+        NSForegroundColorAttributeName: text_color,
     }
     ns_text = NSString.stringWithString_(text)
     text_size = ns_text.sizeWithAttributes_(attrs)
 
     pad_x, pad_y = 10, 3
+    stroke_w = 1.0
     w = text_size.width + pad_x * 2
     h = text_size.height + pad_y * 2
-    # macOS menu bar is ~22pt tall; cap height
     h = min(h, 18)
 
     img = NSImage.alloc().initWithSize_(NSMakeSize(w, h))
     img.lockFocus()
 
-    # Faint green rounded background
-    bg = NSColor.colorWithCalibratedRed_green_blue_alpha_(
-        0.24, 0.49, 0.25, 0.85
-    )
+    # Faint transparent background fill
+    bg = NSColor.colorWithCalibratedRed_green_blue_alpha_(0.5, 0.5, 0.5, 0.15)
     bg.setFill()
     radius = h / 2
     pill = NSBezierPath.bezierPathWithRoundedRect_xRadius_yRadius_(
@@ -157,20 +156,27 @@ class CalendarMenuBarApp(rumps.App):
             None,
             rumps.MenuItem("Quit", callback=rumps.quit_application),
         ]
-        self._set_pill("Loading…")
-        self._refresh()
+        self.title = "Loading…"
+        self._started = False
         self.timer = rumps.Timer(self._timer_tick, REFRESH_SECONDS)
         self.timer.start()
 
     def _set_pill(self, text):
         """Update the menu bar icon to a pill with the given text."""
-        self.title = None
-        button = self._app.nsStatusItem.button()
-        button.setImage_(make_pill_image(text))
-        button.setImagePosition_(0)  # NSImageOnly
+        try:
+            button = self._app.nsStatusItem.button()
+            self.title = None
+            button.setImage_(make_pill_image(text))
+            button.setImagePosition_(0)  # NSImageOnly
+        except AttributeError:
+            self.title = text
 
     def _timer_tick(self, _):
-        threading.Thread(target=self._refresh, daemon=True).start()
+        if not self._started:
+            self._started = True
+            self._refresh()
+        else:
+            threading.Thread(target=self._refresh, daemon=True).start()
 
     def _skip_clicked(self, _):
         if self.events and len(self.events) > 1:
