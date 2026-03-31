@@ -133,7 +133,7 @@ def make_pill_image(text):
     bar_inset = 1
     bar_rect = NSMakeRect(0, bar_inset, bar_w, h - bar_inset * 2)
     bar_path = NSBezierPath.bezierPathWithRoundedRect_xRadius_yRadius_(
-        bar_rect, 1.5, 1.5
+        bar_rect, 0.75, 0.75
     )
     bar_path.fill()
 
