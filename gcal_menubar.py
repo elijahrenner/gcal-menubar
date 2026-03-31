@@ -107,7 +107,7 @@ def format_title(event):
 def make_pill_image(text):
     """Render text into a rounded-pill image for the menu bar."""
     font = NSFont.systemFontOfSize_weight_(11, 0.5)
-    text_color = NSColor.colorWithCalibratedRed_green_blue_alpha_(0.0, 0.0, 0.0, 0.85)
+    text_color = NSColor.blackColor()
     attrs = {
         NSFontAttributeName: font,
         NSForegroundColorAttributeName: text_color,
@@ -127,7 +127,7 @@ def make_pill_image(text):
     # Faint transparent background fill
     bg = NSColor.colorWithCalibratedRed_green_blue_alpha_(0.5, 0.5, 0.5, 0.15)
     bg.setFill()
-    radius = h / 2
+    radius = 4
     pill = NSBezierPath.bezierPathWithRoundedRect_xRadius_yRadius_(
         NSMakeRect(0, 0, w, h), radius, radius
     )
