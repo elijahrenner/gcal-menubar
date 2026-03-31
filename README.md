@@ -25,3 +25,7 @@ python3 setup.py py2app
 ```
 
 The built app will be in `dist/GCal Menu Bar.app`.
+
+## Author
+
+Made by [Elijah Renner](https://github.com/elijahrenner)

@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
-"""Google Calendar menu bar app — shows your next event."""
+"""Google Calendar menu bar app — shows your next event.
+
+Made by Elijah Renner
+"""
 
 import os
 import sys
@@ -117,9 +120,9 @@ def make_pill_image(text):
     text_size = ns_text.sizeWithAttributes_(attrs)
 
     bar_w = 3
-    gap = 6
-    pad_r = 4
-    h = min(text_size.height + 6, 22)
+    gap = 5
+    pad_r = 1
+    h = 16
     w = bar_w + gap + text_size.width + pad_r
 
     img = NSImage.alloc().initWithSize_(NSMakeSize(w, h))
@@ -133,7 +136,7 @@ def make_pill_image(text):
     bar_inset = 1
     bar_rect = NSMakeRect(0, bar_inset, bar_w, h - bar_inset * 2)
     bar_path = NSBezierPath.bezierPathWithRoundedRect_xRadius_yRadius_(
-        bar_rect, 0.75, 0.75
+        bar_rect, bar_w / 2, bar_w / 2
     )
     bar_path.fill()
 
