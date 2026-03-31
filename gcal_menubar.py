@@ -16,6 +16,7 @@ from AppKit import (
     NSGraphicsContext, NSCompositingOperationSourceOver,
     NSString, NSStatusBar,
 )
+from PyObjCTools import AppHelper
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
@@ -165,15 +166,16 @@ class CalendarMenuBarApp(rumps.App):
         self.timer.start()
 
     def _set_pill(self, text):
-        """Update the menu bar icon to a pill with the given text."""
-        try:
-            button = self._app.nsStatusItem.button()
-            self.title = None
-            button.setImage_(make_pill_image(text))
-            button.setImagePosition_(0)  # NSImageOnly
-            button.cell().setHighlightsBy_(0)  # No highlight on click
-        except AttributeError:
-            self.title = text
+        """Update the menu bar icon with accent bar + text."""
+        def _update():
+            try:
+                nsitem = self._nsapp.nsstatusitem
+                nsitem.setImage_(make_pill_image(text))
+                nsitem.setTitle_("")
+                nsitem.setHighlightMode_(False)
+            except AttributeError:
+                self.title = text
+        AppHelper.callAfter(_update)
 
     def _timer_tick(self, _):
         if not self._started:
