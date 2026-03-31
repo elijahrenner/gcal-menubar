@@ -107,7 +107,7 @@ def format_title(event):
 
 def make_pill_image(text):
     """Render text with a colored accent bar on the left."""
-    font = NSFont.systemFontOfSize_weight_(11, 0.5)
+    font = NSFont.menuBarFontOfSize_(0)
     text_color = NSColor.blackColor()
     attrs = {
         NSFontAttributeName: font,
@@ -119,7 +119,7 @@ def make_pill_image(text):
     bar_w = 3
     gap = 6
     pad_r = 4
-    h = min(text_size.height + 6, 18)
+    h = min(text_size.height + 6, 22)
     w = bar_w + gap + text_size.width + pad_r
 
     img = NSImage.alloc().initWithSize_(NSMakeSize(w, h))
@@ -130,7 +130,7 @@ def make_pill_image(text):
         0.24, 0.49, 0.25, 0.9
     )
     accent.setFill()
-    bar_inset = 2
+    bar_inset = 1
     bar_rect = NSMakeRect(0, bar_inset, bar_w, h - bar_inset * 2)
     bar_path = NSBezierPath.bezierPathWithRoundedRect_xRadius_yRadius_(
         bar_rect, bar_w / 2, bar_w / 2
