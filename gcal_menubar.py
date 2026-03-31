@@ -101,11 +101,11 @@ def format_title(event):
     time_str = format_time(event)
     if len(summary) > MAX_TITLE_LEN:
         summary = summary[: MAX_TITLE_LEN - 1] + "…"
-    return f"{summary} — {time_str}"
+    return f"{summary} {time_str}"
 
 
 def make_pill_image(text):
-    """Render text into a rounded-pill image for the menu bar."""
+    """Render text with a colored accent bar on the left."""
     font = NSFont.systemFontOfSize_weight_(11, 0.5)
     text_color = NSColor.blackColor()
     attrs = {
@@ -115,26 +115,29 @@ def make_pill_image(text):
     ns_text = NSString.stringWithString_(text)
     text_size = ns_text.sizeWithAttributes_(attrs)
 
-    pad_x, pad_y = 10, 3
-    stroke_w = 1.0
-    w = text_size.width + pad_x * 2
-    h = text_size.height + pad_y * 2
-    h = min(h, 18)
+    bar_w = 3
+    gap = 6
+    pad_r = 4
+    h = min(text_size.height + 6, 18)
+    w = bar_w + gap + text_size.width + pad_r
 
     img = NSImage.alloc().initWithSize_(NSMakeSize(w, h))
     img.lockFocus()
 
-    # Faint transparent background fill
-    bg = NSColor.colorWithCalibratedRed_green_blue_alpha_(0.5, 0.5, 0.5, 0.15)
-    bg.setFill()
-    radius = 4
-    pill = NSBezierPath.bezierPathWithRoundedRect_xRadius_yRadius_(
-        NSMakeRect(0, 0, w, h), radius, radius
+    # Colored vertical accent bar (rounded)
+    accent = NSColor.colorWithCalibratedRed_green_blue_alpha_(
+        0.24, 0.49, 0.25, 0.9
     )
-    pill.fill()
+    accent.setFill()
+    bar_inset = 2
+    bar_rect = NSMakeRect(0, bar_inset, bar_w, h - bar_inset * 2)
+    bar_path = NSBezierPath.bezierPathWithRoundedRect_xRadius_yRadius_(
+        bar_rect, bar_w / 2, bar_w / 2
+    )
+    bar_path.fill()
 
-    # Draw text centered
-    text_x = (w - text_size.width) / 2
+    # Draw text
+    text_x = bar_w + gap
     text_y = (h - text_size.height) / 2
     ns_text.drawAtPoint_withAttributes_((text_x, text_y), attrs)
 
@@ -168,6 +171,7 @@ class CalendarMenuBarApp(rumps.App):
             self.title = None
             button.setImage_(make_pill_image(text))
             button.setImagePosition_(0)  # NSImageOnly
+            button.cell().setHighlightsBy_(0)  # No highlight on click
         except AttributeError:
             self.title = text
 
