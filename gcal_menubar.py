@@ -133,7 +133,7 @@ def make_pill_image(text):
     bar_inset = 1
     bar_rect = NSMakeRect(0, bar_inset, bar_w, h - bar_inset * 2)
     bar_path = NSBezierPath.bezierPathWithRoundedRect_xRadius_yRadius_(
-        bar_rect, bar_w / 2, bar_w / 2
+        bar_rect, 1.5, 1.5
     )
     bar_path.fill()
 
@@ -172,7 +172,7 @@ class CalendarMenuBarApp(rumps.App):
                 nsitem = self._nsapp.nsstatusitem
                 nsitem.setImage_(make_pill_image(text))
                 nsitem.setTitle_("")
-                nsitem.setHighlightMode_(False)
+                nsitem.setHighlightMode_(True)
             except AttributeError:
                 self.title = text
         AppHelper.callAfter(_update)
