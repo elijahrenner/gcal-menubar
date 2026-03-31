@@ -19,6 +19,7 @@ TOKEN_PATH = os.path.join(APP_DIR, "token.json")
 CREDS_PATH = os.path.join(APP_DIR, "credentials.json")
 SCOPES = ["https://www.googleapis.com/auth/calendar.readonly"]
 REFRESH_SECONDS = 60
+MAX_TITLE_LEN = 20
 
 
 def get_credentials():
@@ -91,8 +92,8 @@ def format_time(event):
 def format_title(event):
     summary = event.get("summary", "No title")
     time_str = format_time(event)
-    if len(summary) > 30:
-        summary = summary[:28] + "…"
+    if len(summary) > MAX_TITLE_LEN:
+        summary = summary[: MAX_TITLE_LEN - 1] + "…"
     return f"📅 {summary} — {time_str}"
 
 
@@ -100,8 +101,10 @@ class CalendarMenuBarApp(rumps.App):
     def __init__(self):
         super().__init__("📅 Loading…", quit_button=None)
         self.events = []
+        self.event_index = 0
         self.creds = get_credentials()
         self.menu = [
+            rumps.MenuItem("Skip to next ⏭", callback=self._skip_clicked),
             rumps.MenuItem("Refresh", callback=self._refresh_clicked),
             rumps.MenuItem("Open Google Calendar", callback=self._open_gcal),
             None,
@@ -114,7 +117,13 @@ class CalendarMenuBarApp(rumps.App):
     def _timer_tick(self, _):
         threading.Thread(target=self._refresh, daemon=True).start()
 
+    def _skip_clicked(self, _):
+        if self.events and len(self.events) > 1:
+            self.event_index = (self.event_index + 1) % len(self.events)
+            self.title = format_title(self.events[self.event_index])
+
     def _refresh_clicked(self, _):
+        self.event_index = 0
         threading.Thread(target=self._refresh, daemon=True).start()
 
     def _open_gcal(self, _):
@@ -125,8 +134,10 @@ class CalendarMenuBarApp(rumps.App):
             if self.creds.expired and self.creds.refresh_token:
                 self.creds.refresh(Request())
             self.events = fetch_next_event(self.creds)
+            if self.event_index >= len(self.events):
+                self.event_index = 0
             if self.events:
-                self.title = format_title(self.events[0])
+                self.title = format_title(self.events[self.event_index])
             else:
                 self.title = "📅 No upcoming events"
         except Exception as e:
