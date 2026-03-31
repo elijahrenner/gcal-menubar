@@ -7,9 +7,10 @@ Made by Elijah Renner
 import os
 import sys
 import json
+import fcntl
 import datetime
 import threading
-import webbrowser
+import subprocess
 
 import rumps
 import objc
@@ -28,6 +29,13 @@ from googleapiclient.discovery import build
 APP_DIR = os.path.dirname(os.path.abspath(__file__))
 TOKEN_PATH = os.path.join(APP_DIR, "token.json")
 CREDS_PATH = os.path.join(APP_DIR, "credentials.json")
+LOCK_PATH = os.path.join(APP_DIR, ".gcal_menubar.lock")
+
+_lock_file = open(LOCK_PATH, "w")
+try:
+    fcntl.flock(_lock_file, fcntl.LOCK_EX | fcntl.LOCK_NB)
+except OSError:
+    sys.exit(0)
 SCOPES = ["https://www.googleapis.com/auth/calendar.readonly"]
 REFRESH_SECONDS = 60
 MAX_TITLE_LEN = 20
@@ -197,7 +205,7 @@ class CalendarMenuBarApp(rumps.App):
         threading.Thread(target=self._refresh, daemon=True).start()
 
     def _open_gcal(self, _):
-        webbrowser.open("https://calendar.google.com")
+        subprocess.Popen(["open", "-a", "Google Calendar"])
 
     def _refresh(self):
         try:
