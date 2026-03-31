@@ -1,0 +1,8 @@
+build/
+dist/
+*.egg-info
+token.json
+credentials.json
+error.log
+__pycache__
+.eggs/
